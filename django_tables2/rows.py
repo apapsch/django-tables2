@@ -136,7 +136,7 @@ class BoundRow:
             # is correct – it's what __getitem__ expects.
             yield value
 
-    def _get_and_render_with(self, bound_column, render_func, default):
+    def _get_and_render_with(self, bound_column, render_func):
         value = None
         accessor = A(bound_column.accessor)
         column = bound_column.column
@@ -166,10 +166,6 @@ class BoundRow:
                 if isinstance(column, BaseLinkColumn) and column.text is not None:
                     return render_func(bound_column)
 
-        is_manytomanycolumn = isinstance(column, ManyToManyColumn)
-        if value in column.empty_values or (is_manytomanycolumn and not value.exists()):
-            return default
-
         return render_func(bound_column, value)
 
     def _optional_cell_arguments(self, bound_column, value):
@@ -195,7 +191,7 @@ class BoundRow:
         bound_column = self.table.columns[name]
 
         return self._get_and_render_with(
-            bound_column, render_func=self._call_render, default=bound_column.default
+            bound_column, render_func=self._call_render
         )
 
     def _call_render(self, bound_column, value=None):
@@ -213,7 +209,7 @@ class BoundRow:
         row, given the name of a column.
         """
         return self._get_and_render_with(
-            self.table.columns[name], render_func=self._call_value, default=None
+            self.table.columns[name], render_func=self._call_value
         )
 
     def _call_value(self, bound_column, value=None):
